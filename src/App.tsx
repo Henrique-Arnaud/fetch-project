@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useReducer, useState } from 'react'
+import { Container, InputField, PokemonContainer, Title } from './styles';
+import { PokemonComponent } from './Components/PokemonComponent';
 
-function App() {
+const reducer = (state: any, action: any) => {
+  if (action.type === 'increment') {
+    return {
+      number: state.number + 1
+    }
+  } else if (action.type === 'decrement') {
+    return {
+      number: state.number > 1 ? state.number - 1 : state.number
+    }
+  }
+}
+
+const App = () => {
+  const [pokemonResponse, setPokemonResponse] = useState<any>()
+
+  const [state, dispatch] = useReducer(reducer, { number: 1 })
+
+  useEffect(() => {
+    fetch(`https://pokeapi.co/api/v2/pokemon/${state?.number ?? 1}`).then(response => {
+      response.json().then((data) => {
+        console.log(data)
+        setPokemonResponse(data)
+      })
+    })
+  }, [state?.number])
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Container>
+      <Title>Pokemon</Title>
+      <PokemonContainer>
+        <InputField>
+          <button onClick={() => dispatch({ type: 'decrement' })}>Anterior</button>
+          <h2>{state?.number}</h2>
+          <button onClick={() => dispatch({ type: 'increment' })}>Próximo</button>
+        </InputField>
+        {pokemonResponse ? (
+          <PokemonComponent pokemonResponse={pokemonResponse} />
+        ) : (
+          <p>Carregando...</p>
+        )}
+      </PokemonContainer>
+    </Container>
+  )
 }
 
 export default App;
