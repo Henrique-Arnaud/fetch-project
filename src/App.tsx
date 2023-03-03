@@ -1,16 +1,24 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import { Container, InputField, PokemonContainer, Title } from './styles';
 import { PokemonComponent } from './Components/PokemonComponent';
+import axios from 'axios';
 
 const reducer = (state: any, action: any) => {
-  if (action.type === 'increment') {
-    return {
-      number: state.number + 1
-    }
-  } else if (action.type === 'decrement') {
-    return {
-      number: state.number > 1 ? state.number - 1 : state.number
-    }
+  switch (action.type) {
+    case 'increment':
+      return {
+        number: state.number < 1008 ? state.number + 1 : state.number
+      }
+    case 'decrement':
+      return {
+        number: state.number > 1 ? state.number - 1 : state.number
+      }
+    case 'changeValue':
+      return {
+        number: action.value > 0 && action.value < 1008 ? action.value : state.number
+      }
+    default:
+      throw Error('Ação desconhecida: ' + action.type);
   }
 }
 
@@ -19,15 +27,15 @@ const App = () => {
 
   const [state, dispatch] = useReducer(reducer, { number: 1 })
 
-  useEffect(() => {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${state?.number ?? 1}`).then(response => {
-      response.json().then((data) => {
-        console.log(data)
-        setPokemonResponse(data)
-      })
-    })
+  const handleGetPokemon = useCallback(async () => {
+    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${state?.number ?? 1}`)
+    console.log(response.data)
+    setPokemonResponse(response.data)
   }, [state?.number])
 
+  useEffect(() => {
+    handleGetPokemon()
+  }, [state?.number])
 
   return (
     <Container>
@@ -35,7 +43,7 @@ const App = () => {
       <PokemonContainer>
         <InputField>
           <button onClick={() => dispatch({ type: 'decrement' })}>Anterior</button>
-          <h2>{state?.number}</h2>
+          <input value={state?.number} onChange={(e) => dispatch({ type: 'changeValue', value: +e.currentTarget.value })} />
           <button onClick={() => dispatch({ type: 'increment' })}>Próximo</button>
         </InputField>
         {pokemonResponse ? (
@@ -48,4 +56,4 @@ const App = () => {
   )
 }
 
-export default App;
+export default App

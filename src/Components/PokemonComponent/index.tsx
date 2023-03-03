@@ -9,7 +9,7 @@ export const PokemonComponent = ({ pokemonResponse }: any) => {
       <PokemonDetails>
         <p>{pokemonResponse.name}</p>
         <p>{pokemonResponse.abilities?.map((each: { ability: { name: string; }; }) => each.ability?.name).join(', ')}</p>
-        <p>{pokemonResponse.types?.map((each: { type: { name: any; }; }) => each.type.name).join(', ')}</p>
+        <p>{pokemonResponse.types?.map((each: { type: { name: string; }; }) => each.type.name).join(', ')}</p>
       </PokemonDetails>
     </PokemonSection>
   )

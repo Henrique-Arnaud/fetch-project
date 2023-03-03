@@ -20,5 +20,6 @@ export const InputField = styled.div`
     height: 40px;
     width: 50px;
     font: 400 16px 'Inter';
+    text-align: center;
   }
 `
